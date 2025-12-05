@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Optional;
 import lombok.Data;
 import lombok.NonNull;
@@ -49,25 +50,36 @@ public class HalDocument {
         return this.getLink("self").orElseThrow();
     }
 
-    public Optional<HalLink> getLink(@NonNull String name) {
-        return Optional.ofNullable(this.links.get(name))
-                .flatMap(links -> {
-                    if (links.size() == 0) {
+    public Optional<HalLink> getLink(@NonNull String rel, @NonNull String name) {
+        return getLinks(rel).flatMap(linksForRel -> linksForRel.stream()
+                .filter(link -> Objects.equals(name, link.getName()))
+                .findFirst());
+    }
+
+    public Optional<HalLink> getLink(@NonNull String rel) {
+        return Optional.ofNullable(this.links.get(rel))
+                .flatMap(linksForRel -> {
+                    if (linksForRel.isEmpty()) {
                         return Optional.empty();
-                    } else if (links.size() == 1) {
-                        return links.stream().findFirst();
+                    } else if (linksForRel.size() == 1) {
+                        return linksForRel.stream().findFirst();
                     }
-                    throw new RuntimeException("Expected 1 link, but has %s links".formatted(links.size()));
+                    throw new RuntimeException("Expected 1 link, but has %s links".formatted(linksForRel.size()));
                 });
     }
 
-    public Optional<List<HalLink>> getLinks(@NonNull String name) {
-        return Optional.ofNullable(this.links.get(name));
+    public Optional<List<HalLink>> getLinks(@NonNull String rel) {
+        return Optional.ofNullable(this.links.get(rel));
     }
 
-    public HalLink getRequiredLink(@NonNull String name) {
-        return this.getLink(name)
-                .orElseThrow(() -> new NoSuchElementException("Link with name %s not found".formatted(name)));
+    public HalLink getRequiredLink(@NonNull String rel) {
+        return this.getLink(rel)
+                .orElseThrow(() -> new NoSuchElementException("Link with rel %s not found".formatted(rel)));
+    }
+
+    public HalLink getRequiredLink(@NonNull String rel, @NonNull String name) {
+        return this.getLink(rel, name)
+                .orElseThrow(() -> new NoSuchElementException("Link with rel %s and name %s not found".formatted(rel, name)));
     }
 
     public Optional<List<HalDocument>> getEmbedded(@NonNull String name) {

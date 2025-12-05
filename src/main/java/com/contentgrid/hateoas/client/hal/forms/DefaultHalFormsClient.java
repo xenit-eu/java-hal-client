@@ -18,7 +18,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClient.RequestBodySpec;
 import org.springframework.web.client.RestClient.RequestHeadersSpec;
@@ -49,7 +49,7 @@ class DefaultHalFormsClient implements HalFormsClient {
                 .contentType(contentType)
                 .accept(MediaTypes.HAL_FORMS_JSON);
 
-        return new DefaultHalFormsBodyRequest(bodySpec, template.getProperties());
+        return new DefaultHalFormsBodyRequest(bodySpec, contentType, template.getProperties());
     }
 
     public Optional<HalFormsTemplate> getTemplate(@NonNull HalDocument document, @NonNull String name) {
@@ -100,6 +100,9 @@ class DefaultHalFormsClient implements HalFormsClient {
         private final RequestBodySpec request;
 
         @NonNull
+        private final MediaType contentType;
+
+        @NonNull
         private final List<HalFormsProperty> properties;
 
         @Override
@@ -118,8 +121,14 @@ class DefaultHalFormsClient implements HalFormsClient {
                 body.put(property.name, valueFunction.apply(property));
             }
 
-            request.body(body, new ParameterizedTypeReference<Map<String, Object>>(){
-            });
+            if (contentType.includes(MediaType.APPLICATION_FORM_URLENCODED) || contentType.includes(MediaType.MULTIPART_FORM_DATA)) {
+                // body must be a MultiValuedMap because the HttpMessageConverter only supports MultiValuedMap
+                request.body(MultiValueMap.fromSingleValue(body), new ParameterizedTypeReference<MultiValueMap<String, Object>>() {
+                });
+            } else {
+                request.body(body, new ParameterizedTypeReference<Map<String, Object>>() {
+                });
+            }
 
             return this;
         }

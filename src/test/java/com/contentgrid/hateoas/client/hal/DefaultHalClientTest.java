@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import org.junit.jupiter.api.Test;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpStatus;
@@ -29,9 +31,10 @@ class DefaultHalClientTest {
                                 "_links": {
                                     "self": { "href": "%s" },
                                     "single": { "href": "/single" },
+                                    "templated": { "href": "/templated{?query}", "templated": true },
                                     "multi": [
-                                        { "href": "/multi/a" },
-                                        { "href": "/multi/b" }
+                                        { "href": "/multi/a", "name": "a" },
+                                        { "href": "/multi/b", "name": "b" }
                                     ],
                                     "empty": [ ]
                                 }
@@ -52,14 +55,25 @@ class DefaultHalClientTest {
         assertThat(doc.getLink("single")).hasValueSatisfying(single ->
                 assertThat(single.getURI()).hasToString("/single"));
         assertThat(doc.getLinks("single")).hasValueSatisfying(links ->
-                assertThat(links).containsExactly(new HalLink("/single")));
+                assertThat(links).containsExactly(HalLink.from(URI.create("/single"))));
+        assertThat(doc.getLink("templated")).hasValueSatisfying(templated ->
+                assertThat(templated.getHref()).isEqualTo("/templated{?query}"));
+        assertThat(doc.getLink("templated")).hasValueSatisfying(templated ->
+                assertThat(templated.expand(Map.of("query", "foo"))).hasToString("/templated?query=foo"));
+        assertThat(doc.getLink("templated")).hasValueSatisfying(templated ->
+                assertThat(templated.expand(Map.of())).hasToString("/templated"));
 
         assertThat(doc.getLinks("multi")).hasValueSatisfying(multi ->
                 assertThat(multi).containsExactly(
-                        new HalLink("/multi/a"),
-                        new HalLink("/multi/b")
+                        HalLink.from(URI.create("/multi/a"), "a"),
+                        HalLink.from(URI.create("/multi/b"), "b")
                 ));
+        assertThat(doc.getLink("multi", "a")).hasValueSatisfying(linkA ->
+                assertThat(linkA.getURI()).hasToString("/multi/a"));
+        assertThat(doc.getLink("multi", "b")).hasValueSatisfying(linkA ->
+                assertThat(linkA.getURI()).hasToString("/multi/b"));
         assertThatThrownBy(() -> doc.getLink("multi")).isInstanceOf(RuntimeException.class);
+        assertThatThrownBy(() -> doc.getRequiredLink("multi", "c")).isInstanceOf(NoSuchElementException.class);
 
         assertThat(doc.getLink("empty")).isEmpty();
         assertThat(doc.getLinks("empty")).hasValueSatisfying(links -> assertThat(links).isEmpty());
