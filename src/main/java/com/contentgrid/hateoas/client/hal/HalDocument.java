@@ -51,20 +51,20 @@ public class HalDocument {
     }
 
     public Optional<HalLink> getLink(@NonNull String rel, @NonNull String name) {
-        return getLinks(rel).flatMap(links -> links.stream()
+        return getLinks(rel).flatMap(linksForRel -> linksForRel.stream()
                 .filter(link -> Objects.equals(name, link.getName()))
                 .findFirst());
     }
 
     public Optional<HalLink> getLink(@NonNull String rel) {
         return Optional.ofNullable(this.links.get(rel))
-                .flatMap(links -> {
-                    if (links.isEmpty()) {
+                .flatMap(linksForRel -> {
+                    if (linksForRel.isEmpty()) {
                         return Optional.empty();
-                    } else if (links.size() == 1) {
-                        return links.stream().findFirst();
+                    } else if (linksForRel.size() == 1) {
+                        return linksForRel.stream().findFirst();
                     }
-                    throw new RuntimeException("Expected 1 link, but has %s links".formatted(links.size()));
+                    throw new RuntimeException("Expected 1 link, but has %s links".formatted(linksForRel.size()));
                 });
     }
 
