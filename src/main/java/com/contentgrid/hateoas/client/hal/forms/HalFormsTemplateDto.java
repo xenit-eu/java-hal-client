@@ -19,6 +19,7 @@ public class HalFormsTemplateDto {
     String method;
     String target;
     String contentType;
+    String title;
     List<HalFormsProperty> properties;
 
     public HttpMethod getHttpMethodOrDefault(HttpMethod defaultHttpMethod) {
