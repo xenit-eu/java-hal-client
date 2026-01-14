@@ -13,7 +13,7 @@ public class HalFormsTemplate extends HalFormsTemplateDto {
     private final HalLink selfLink;
 
     public HalFormsTemplate(HalLink selfLink, HalFormsTemplateDto template) {
-        super(template.getMethod(), template.getTarget(), template.getContentType(), template.getProperties());
+        super(template.getMethod(), template.getTarget(), template.getContentType(), template.getTitle(), template.getProperties());
 
         this.selfLink = selfLink;
     }
