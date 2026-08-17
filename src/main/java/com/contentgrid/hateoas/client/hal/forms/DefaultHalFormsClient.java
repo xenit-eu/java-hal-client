@@ -114,11 +114,13 @@ class DefaultHalFormsClient implements HalFormsClient {
         }
 
         @Override
-        public HalFormsBodyRequest properties(Function<HalFormsProperty, Object> valueFunction) {
-            // depending on http-method, null-values might need to be skipped ?
+        public HalFormsBodyRequest properties(Function<HalFormsProperty, HalFormsPropertyValue<Object>> valueFunction) {
             Map<String, Object> body = new LinkedHashMap<>();
             for (var property : properties) {
-                body.put(property.name, valueFunction.apply(property));
+                var value = valueFunction.apply(property);
+                if (!(value instanceof HalFormsPropertyValue.MissingHalFormsPropertyValue<Object>)) {
+                    body.put(property.name, value.get());
+                }
             }
 
             if (contentType.includes(MediaType.APPLICATION_FORM_URLENCODED) || contentType.includes(MediaType.MULTIPART_FORM_DATA)) {
