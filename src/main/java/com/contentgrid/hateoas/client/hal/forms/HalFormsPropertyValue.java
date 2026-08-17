@@ -18,20 +18,11 @@ import org.springframework.lang.Nullable;
  *     <li>Present, but null: {@link NullHalFormsPropertyValue}</li>
  *     <li>Absent: {@link MissingHalFormsPropertyValue}</li>
  * </ul>
+ * Note that you are primarily expected to use a pattern-matching switch statement to distinguish between the different subtypes of {@linkplain HalFormsPropertyValue}
  *
  * @param <T> The type of the value
  */
 public sealed interface HalFormsPropertyValue<T> {
-
-    /**
-     * Retrieves the value, if any
-     * <p>
-     * Note that you are primarily expected to use a pattern-matching switch statement to distinguish between the different subtypes of {@linkplain HalFormsPropertyValue}
-     *
-     * @return Retrieves the value from {@link NonNullHalFormsPropertyValue}, or {@code null} for {@link NullHalFormsPropertyValue} and {@link MissingHalFormsPropertyValue}
-     */
-    @Nullable
-    T get();
 
     /**
      * If a value is present, returns the {@linkplain HalFormsPropertyValue} after applying the mapping function
@@ -79,28 +70,21 @@ public sealed interface HalFormsPropertyValue<T> {
     @EqualsAndHashCode
     final class NonNullHalFormsPropertyValue<T> implements HalFormsPropertyValue<T> {
         @NonNull
-        private final T data;
+        private final T value;
 
-        @Override
         public T get() {
-            return data;
+            return value;
         }
 
         @Override
         public <U> HalFormsPropertyValue<U> map(Function<T, U> mapper) {
-            return new NonNullHalFormsPropertyValue<>(mapper.apply(data));
+            return new NonNullHalFormsPropertyValue<>(mapper.apply(value));
         }
     }
 
     @Value
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     class MissingHalFormsPropertyValue<T> implements HalFormsPropertyValue<T> {
-
-        @Override
-        @Nullable
-        public T get() {
-            return null;
-        }
 
         @Override
         public <U> HalFormsPropertyValue<U> map(Function<T, U> mapper) {
@@ -111,12 +95,6 @@ public sealed interface HalFormsPropertyValue<T> {
     @Value
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     class NullHalFormsPropertyValue<T> implements HalFormsPropertyValue<T> {
-
-        @Override
-        @Nullable
-        public T get() {
-            return null;
-        }
 
         @Override
         public <U> HalFormsPropertyValue<U> map(Function<T, U> mapper) {

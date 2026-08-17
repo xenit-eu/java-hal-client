@@ -7,13 +7,6 @@ import org.junit.jupiter.api.Test;
 class HalFormsPropertyValueTest {
 
     @Test
-    void testGet() {
-        assertThat(HalFormsPropertyValue.of("foo").get()).isEqualTo("foo");
-        assertThat(HalFormsPropertyValue.empty().get()).isNull();
-        assertThat(HalFormsPropertyValue.missing().get()).isNull();
-    }
-
-    @Test
     void testEquals() {
         assertThat(HalFormsPropertyValue.of("foo")).isEqualTo(HalFormsPropertyValue.of("foo"));
         assertThat(HalFormsPropertyValue.empty()).isEqualTo(HalFormsPropertyValue.empty());
