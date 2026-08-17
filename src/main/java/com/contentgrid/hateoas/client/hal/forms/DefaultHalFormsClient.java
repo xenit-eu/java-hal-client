@@ -3,6 +3,9 @@ package com.contentgrid.hateoas.client.hal.forms;
 import com.contentgrid.hateoas.client.hal.HalDocument;
 import com.contentgrid.hateoas.client.hal.HalRequest;
 import com.contentgrid.hateoas.client.hal.HalResponse;
+import com.contentgrid.hateoas.client.hal.forms.HalFormsPropertyValue.MissingHalFormsPropertyValue;
+import com.contentgrid.hateoas.client.hal.forms.HalFormsPropertyValue.NonNullHalFormsPropertyValue;
+import com.contentgrid.hateoas.client.hal.forms.HalFormsPropertyValue.NullHalFormsPropertyValue;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;
@@ -114,11 +117,15 @@ class DefaultHalFormsClient implements HalFormsClient {
         }
 
         @Override
-        public HalFormsBodyRequest properties(Function<HalFormsProperty, Object> valueFunction) {
-            // depending on http-method, null-values might need to be skipped ?
+        public HalFormsBodyRequest properties(Function<HalFormsProperty, HalFormsPropertyValue<Object>> valueFunction) {
             Map<String, Object> body = new LinkedHashMap<>();
             for (var property : properties) {
-                body.put(property.name, valueFunction.apply(property));
+                var value = valueFunction.apply(property);
+                switch (value) {
+                    case NonNullHalFormsPropertyValue<Object> nonNullValue -> body.put(property.getName(), nonNullValue.get());
+                    case NullHalFormsPropertyValue<Object> ignored -> body.put(property.getName(), null);
+                    case MissingHalFormsPropertyValue<Object> ignored -> {}
+                }
             }
 
             if (contentType.includes(MediaType.APPLICATION_FORM_URLENCODED) || contentType.includes(MediaType.MULTIPART_FORM_DATA)) {
