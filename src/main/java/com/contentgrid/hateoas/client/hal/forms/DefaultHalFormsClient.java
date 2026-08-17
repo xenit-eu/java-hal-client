@@ -3,6 +3,8 @@ package com.contentgrid.hateoas.client.hal.forms;
 import com.contentgrid.hateoas.client.hal.HalDocument;
 import com.contentgrid.hateoas.client.hal.HalRequest;
 import com.contentgrid.hateoas.client.hal.HalResponse;
+import com.contentgrid.hateoas.client.hal.forms.HalFormsPropertyValue.NonNullHalFormsPropertyValue;
+import com.contentgrid.hateoas.client.hal.forms.HalFormsPropertyValue.NullHalFormsPropertyValue;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;
@@ -118,8 +120,10 @@ class DefaultHalFormsClient implements HalFormsClient {
             Map<String, Object> body = new LinkedHashMap<>();
             for (var property : properties) {
                 var value = valueFunction.apply(property);
-                if (!(value instanceof HalFormsPropertyValue.MissingHalFormsPropertyValue<Object>)) {
-                    body.put(property.name, value.get());
+                switch (value) {
+                    case NonNullHalFormsPropertyValue<Object> ignored -> body.put(property.getName(), value.get());
+                    case NullHalFormsPropertyValue<Object> ignored -> body.put(property.getName(), value.get());
+                    default -> {}
                 }
             }
 
