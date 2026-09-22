@@ -6,6 +6,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClient;
 
 @Slf4j
@@ -17,7 +18,7 @@ class DefaultHalClient implements HalClient {
 
     @Override
     public HalRequest get(URI uri) {
-        var request = this.restClient.get().uri(uri).accept(MediaTypes.HAL_FORMS_JSON);
+        var request = this.restClient.get().uri(uri).accept(MediaTypes.HAL_JSON, MediaType.APPLICATION_JSON);
         return new DefaultHalRequest(request);
     }
 }
