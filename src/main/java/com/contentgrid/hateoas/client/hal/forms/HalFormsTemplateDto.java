@@ -1,5 +1,7 @@
 package com.contentgrid.hateoas.client.hal.forms;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonCreator.Mode;
 import tools.jackson.databind.json.JsonMapper;
 import java.net.URI;
 import java.util.List;
@@ -13,14 +15,14 @@ import org.springframework.util.StringUtils;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(onConstructor_ = @JsonCreator(mode = Mode.DISABLED))
 public class HalFormsTemplateDto {
 
     String method;
     String target;
     String contentType;
     String title;
-    List<HalFormsProperty> properties;
+    List<HalFormsProperty> properties = List.of();
 
     public HttpMethod getHttpMethodOrDefault(HttpMethod defaultHttpMethod) {
         return this.method != null ? HttpMethod.valueOf(this.method) : defaultHttpMethod;
