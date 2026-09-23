@@ -37,7 +37,8 @@ class DefaultHalFormsClient implements HalFormsClient {
 
     @Override
     public HalRequest get(URI uri) {
-        var request = this.restClient.get().uri(uri).accept(MediaTypes.HAL_FORMS_JSON);
+        var request = this.restClient.get().uri(uri)
+                .accept(MediaTypes.HAL_FORMS_JSON, MediaTypes.HAL_JSON, MediaType.APPLICATION_JSON);
         return new DefaultHalFormsRequest(request);
     }
 
@@ -50,7 +51,7 @@ class DefaultHalFormsClient implements HalFormsClient {
                 .method(template.getHttpMethodOrDefault(HttpMethod.GET))
                 .uri(template.getTargetURIOrDefault(template.getSelfLink().getURI()))
                 .contentType(contentType)
-                .accept(MediaTypes.HAL_FORMS_JSON);
+                .accept(MediaTypes.HAL_FORMS_JSON, MediaTypes.HAL_JSON, MediaType.APPLICATION_JSON);
 
         return new DefaultHalFormsBodyRequest(bodySpec, contentType, template.getProperties());
     }
