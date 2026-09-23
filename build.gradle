@@ -40,12 +40,12 @@ repositories {
 dependencies {
     implementation platform("org.springframework.boot:spring-boot-dependencies:4.1.1")
 
-    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'tools.jackson.core:jackson-databind'
     implementation 'org.slf4j:slf4j-api'
 
     implementation 'org.springframework:spring-web'
     implementation 'org.springframework.hateoas:spring-hateoas'
-    implementation 'org.springframework:spring-test'
+    testImplementation 'org.springframework:spring-test'
 
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'org.assertj:assertj-core'

@@ -1,6 +1,6 @@
 package com.contentgrid.hateoas.client.hal.forms;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import java.net.URI;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -37,7 +37,8 @@ public class HalFormsTemplateDto {
     @Override
     @SneakyThrows
     public String toString() {
-        return new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(this);
+        return JsonMapper.builder().build()
+                .writerWithDefaultPrettyPrinter().writeValueAsString(this);
     }
 
 }
