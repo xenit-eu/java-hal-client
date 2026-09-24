@@ -1,16 +1,20 @@
 package com.contentgrid.hateoas.client.hal;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonCreator.Mode;
 import java.net.URI;
 import java.util.Map;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.UriTemplate;
 import org.springframework.lang.Nullable;
 
 @Data
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor(access = AccessLevel.PRIVATE, onConstructor_ = @JsonCreator(mode = Mode.DISABLED))
 public class HalLink {
 
     @NonNull
@@ -19,7 +23,7 @@ public class HalLink {
     @Nullable
     String name;
 
-    boolean templated;
+    boolean templated = false;
 
     public URI getURI() {
         return URI.create(this.href);

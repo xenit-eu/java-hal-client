@@ -6,8 +6,8 @@ import com.contentgrid.hateoas.client.hal.HalResponse;
 import com.contentgrid.hateoas.client.hal.forms.HalFormsPropertyValue.MissingHalFormsPropertyValue;
 import com.contentgrid.hateoas.client.hal.forms.HalFormsPropertyValue.NonNullHalFormsPropertyValue;
 import com.contentgrid.hateoas.client.hal.forms.HalFormsPropertyValue.NullHalFormsPropertyValue;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -33,7 +33,7 @@ class DefaultHalFormsClient implements HalFormsClient {
     @NonNull
     private final RestClient restClient;
 
-    private static ObjectMapper mapper = new ObjectMapper();
+    private static final JsonMapper MAPPER = JsonMapper.builder().build();
 
     @Override
     public HalRequest get(URI uri) {
@@ -63,7 +63,7 @@ class DefaultHalFormsClient implements HalFormsClient {
             return Optional.empty();
         }
 
-        var tree = mapper.valueToTree(templates);
+        var tree = MAPPER.valueToTree(templates);
         var templateTree = tree.get(name);
         if (templateTree == null) {
             log.debug("HALDocument '{}' has no _template named '{}'", document, name);
@@ -71,10 +71,10 @@ class DefaultHalFormsClient implements HalFormsClient {
         }
 
         try {
-            var dto = mapper.treeToValue(templateTree, HalFormsTemplateDto.class);
+            var dto = MAPPER.treeToValue(templateTree, HalFormsTemplateDto.class);
             var template = new HalFormsTemplate(document.getSelfLink(), dto);
             return Optional.of(template);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             log.warn("HALDocument '{}' has a field named _template.{} - but is not a valid HAL-Forms Template",
                     document, name, e);
             return Optional.empty();
