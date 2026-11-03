@@ -3,6 +3,7 @@ plugins {
     id 'io.freefair.lombok' version '9.8.2'
     id 'jacoco'
     id 'org.sonarqube'
+    id 'com.diffplug.spotless'
 }
 
 apply from: "${rootDir}/gradle/publish.gradle"
